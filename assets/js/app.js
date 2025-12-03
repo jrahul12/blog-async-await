@@ -53,8 +53,8 @@ const createBlog = arr => {
                             <p>${blog.body}</p>
                         </div>
                         <div class="card-footer d-flex justify-content-between">
-                            <button class="btn btn-sm btn-block btn-success">Edit</button>
-                            <button class="btn btn-sm btn-block btn-danger">Delete</button>
+                            <button class="btn btn-sm btn-block btn-success" onClick="onEdit(this)">Edit</button>
+                            <button class="btn btn-sm btn-block btn-danger" onClick="onRemove(this)">Delete</button>
                         </div>
                     </div>`
     }).join('');
@@ -90,13 +90,24 @@ const onSubmitBlog=async (eve)=>{
                             <p>${createObj.body}</p>
                         </div>
                         <div class="card-footer d-flex justify-content-between">
-                            <button class="btn btn-sm btn-block btn-success">Edit</button>
-                            <button class="btn btn-sm btn-block btn-danger">Delete</button>
+                            <button class="btn btn-sm btn-block btn-success" onClick="onEdit(this)">Edit</button>
+                            <button class="btn btn-sm btn-block btn-danger" onClick="onRemove(this)">Delete</button>
                         </div>`
                         blogContainer.append(card);
                         blogForm.reset();
     }catch(err){
         cl(err)
+    }
+}
+
+async function onRemove(eve) {
+    try{
+        let REMOVE_ID=eve.closest('.card').id;
+        let REMOVE_URL=`${BASE_URL}/blog/${REMOVE_ID}.json`;
+        let data = await makeApiCall(REMOVE_URL,"DELETE",null);
+        eve.closest('.card').remove();
+    }catch{
+        cl(err);
     }
 }
 
