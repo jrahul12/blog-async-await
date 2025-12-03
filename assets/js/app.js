@@ -66,24 +66,24 @@ async function fetchAllBlog(eve) {
         let data = await makeApiCall(POST_URL, "GET", null)
         let blogArr = blogObjToArr(data)
         createBlog(blogArr);
-    } catch(err) {
+    } catch (err) {
         cl(err)
     }
 }
 fetchAllBlog();
 
-const onSubmitBlog=async (eve)=>{
+const onSubmitBlog = async (eve) => {
     eve.preventDefault();
-    let createObj={
-        title:titleControl.value,
-        body:bodyControl.value,
-        userId:userIdControl.value
+    let createObj = {
+        title: titleControl.value,
+        body: bodyControl.value,
+        userId: userIdControl.value
     };
-    try{
-        let data = await makeApiCall(POST_URL,"POST",createObj);
-        let card=document.createElement('div');
-        card.classList=`card`;
-        card.innerHTML=`<div class="card-header">
+    try {
+        let data = await makeApiCall(POST_URL, "POST", createObj);
+        let card = document.createElement('div');
+        card.classList = `card`;
+        card.innerHTML = `<div class="card-header">
                             <h3>${createObj.title}</h3>
                         </div>
                         <div class="card-body">
@@ -93,22 +93,63 @@ const onSubmitBlog=async (eve)=>{
                             <button class="btn btn-sm btn-block btn-success" onClick="onEdit(this)">Edit</button>
                             <button class="btn btn-sm btn-block btn-danger" onClick="onRemove(this)">Delete</button>
                         </div>`
-                        blogContainer.append(card);
-                        blogForm.reset();
-    }catch(err){
+        blogContainer.append(card);
+        blogForm.reset();
+    } catch (err) {
         cl(err)
     }
 }
 
 async function onRemove(eve) {
-    try{
-        let REMOVE_ID=eve.closest('.card').id;
-        let REMOVE_URL=`${BASE_URL}/blog/${REMOVE_ID}.json`;
-        let data = await makeApiCall(REMOVE_URL,"DELETE",null);
+    try {
+        let REMOVE_ID = eve.closest('.card').id;
+        let REMOVE_URL = `${BASE_URL}/blog/${REMOVE_ID}.json`;
+        let data = await makeApiCall(REMOVE_URL, "DELETE", null);
         eve.closest('.card').remove();
-    }catch{
+    } catch {
         cl(err);
     }
 }
 
-blogForm.addEventListener('submit',onSubmitBlog);
+async function onEdit(eve) {
+    let EDIT_ID = eve.closest('.card').id;
+    localStorage.setItem('EDIT_ID', EDIT_ID);
+    let EDIT_URL = `${BASE_URL}/blog/${EDIT_ID}.json`;
+    try {
+        let data = await makeApiCall(EDIT_URL, "GET", null);
+        titleControl.value = data.title;
+        bodyControl.value = data.body;
+        userIdControl.value = data.userId;
+
+        addBtn.classList.add('d-none')
+        updateBtn.classList.remove('d-none');
+    } catch {
+        cl(err)
+    }
+}
+
+const onUpdate = async (eve) => {
+    eve.preventDefault();
+    let UPDATE_ID = localStorage.getItem("EDIT_ID");
+    let UPDATE_URL = `${BASE_URL}/blog/${UPDATE_ID}.json`;
+    let updateObj = {
+        title: titleControl.value,
+        body: bodyControl.value,
+        userId: userIdControl.value
+    };
+    try {
+        let data = await makeApiCall(UPDATE_URL, "PATCH", updateObj);
+        let card = document.getElementById(UPDATE_ID);
+        card.querySelector('h3').innerText = updateObj.title;
+        card.querySelector('p').innerText = updateObj.body;
+
+        updateBtn.classList.add('d-none');
+        addBtn.classList.remove('d-none');
+        blogForm.reset();   
+    } catch {
+        cl(err)
+    }
+}
+
+updateBtn.addEventListener('click', onUpdate);
+blogForm.addEventListener('submit', onSubmitBlog);
