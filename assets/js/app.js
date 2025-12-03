@@ -71,3 +71,33 @@ async function fetchAllBlog(eve) {
     }
 }
 fetchAllBlog();
+
+const onSubmitBlog=async (eve)=>{
+    eve.preventDefault();
+    let createObj={
+        title:titleControl.value,
+        body:bodyControl.value,
+        userId:userIdControl.value
+    };
+    try{
+        let data = await makeApiCall(POST_URL,"POST",createObj);
+        let card=document.createElement('div');
+        card.classList=`card`;
+        card.innerHTML=`<div class="card-header">
+                            <h3>${createObj.title}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>${createObj.body}</p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <button class="btn btn-sm btn-block btn-success">Edit</button>
+                            <button class="btn btn-sm btn-block btn-danger">Delete</button>
+                        </div>`
+                        blogContainer.append(card);
+                        blogForm.reset();
+    }catch(err){
+        cl(err)
+    }
+}
+
+blogForm.addEventListener('submit',onSubmitBlog);
